@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+play_sound() {
+    if command -v afplay >/dev/null 2>&1; then
+        afplay "$1"
+    elif command -v paplay >/dev/null 2>&1; then
+        paplay "$1"
+    elif command -v aplay >/dev/null 2>&1; then
+        aplay "$1"
+    elif command -v play >/dev/null 2>&1; then
+        play "$1" >/dev/null 2>&1
+    fi
+}
+
+OS=$(uname)
+
+if [ "$OS" = "Darwin" ]; then
+    START="/System/Library/Sounds/Pop.aiff"
+    SUCCESS="/System/Library/Sounds/Glass.aiff"
+    ERROR="/System/Library/Sounds/Basso.aiff"
+else
+    START="/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
+    SUCCESS="/usr/share/sounds/freedesktop/stereo/complete.oga"
+    ERROR="/usr/share/sounds/freedesktop/stereo/bell.oga"
+fi
+
+play_sound "$START" &
+
+"$@"
+status=$?
+
+wait
+
+if [ $status -eq 0 ]; then
+    play_sound "$SUCCESS"
+else
+    play_sound "$ERROR"
+fi
+
+exit $status
